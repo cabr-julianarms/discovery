@@ -2,7 +2,24 @@
 
 Aplicação de discovery comercial e técnico: qualificação inicial, trilhas combináveis, jornada de arquitetura e saídas padronizadas para CRM e Engenharia.
 
-Site estático (React + Vite + Tailwind), sem backend, sem credenciais e sem chamadas de IA. Publicado no GitHub Pages.
+Site estático (React + Vite + Tailwind), sem backend e sem chave de API. Publicado no GitHub Pages.
+
+## Funcionalidades
+
+- **Qualificar oportunidade**: contexto livre, cinco perguntas universais, trilhas sugeridas por palavras-chave e perguntas de qualificação por trilha. Gera o resumo para CRM e o handoff para Engenharia.
+- **Discovery técnico**: jornada Objetivo → AS-IS → Gaps → TO-BE → Transição → Governança, com “Por que perguntamos isso?” em todas as perguntas, cobertura e resumo copiável.
+- **Analisar com IA (sem API)**: o site monta um pedido com o contexto, as respostas e as lacunas. A pessoa cola no assistente de IA que já usa (ChatGPT, Gemini…) e cola a resposta de volta. O site lê o JSON e mostra para revisão:
+  - trilhas sugeridas, com motivo e confiança;
+  - respostas encontradas no material, com o trecho de evidência. Deduções da IA entram marcadas como “[A confirmar]”;
+  - perguntas para o cliente, frentes a explorar e riscos, que ficam no projeto e entram nos textos de CRM e handoff.
+- **Projetos**: salvamento automático no navegador, exclusão, exportação e importação em `.json` para backup ou para passar a um colega.
+- Guias de TOGAF, C4, trilhas e glossário.
+
+## Dados e privacidade
+
+- Tudo fica **somente no navegador** de quem usa (localStorage). Não há servidor nem sincronização. Limpar os dados do navegador apaga os projetos; use **Exportar** para backup.
+- O pedido para a IA remove e-mails e telefones automaticamente. Nomes e outros dados continuam no texto. Use a conta de IA aprovada pela empresa para dados de cliente.
+- O contexto da empresa enviado à IA fica em `COMPANY_CONTEXT`, em [lib/ai-assist.ts](lib/ai-assist.ts).
 
 ## Executar localmente
 
@@ -10,47 +27,33 @@ Requer Node.js 24 ou superior.
 
 ```sh
 npm ci
-npm run dev
-```
-
-Validação e build de produção:
-
-```sh
+npm run dev        # servidor local
 npm run typecheck
 npm test
-npm run build     # gera dist/
-npm run preview
+npm run build      # gera dist/
 ```
 
-## Publicação no GitHub Pages
+## Publicação
 
-O workflow [.github/workflows/deploy.yml](.github/workflows/deploy.yml) valida (typecheck, testes, build) a cada push e pull request, e publica no GitHub Pages a cada push na branch `main`.
-
-Configuração única no repositório: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
-
-O build usa caminhos relativos (`base: "./"`), então funciona em qualquer endereço, como `usuario.github.io/nome-do-repo/`.
-
-## Dados
-
-Os projetos são salvos **somente no navegador atual** (localStorage), pelo botão Salvar. Não há sincronização, backup nem salvamento automático, e projetos salvos em outro endereço do site não aparecem aqui. Use exemplos fictícios ou anonimizados.
-
-## Funcionalidades
-
-- Qualificação a partir de contexto livre e cinco perguntas universais.
-- Trilhas de migração, IA, desenvolvimento, CI/CD, on-premises e dados.
-- Perguntas específicas por trilha, com seleção manual e sugestões por sinais textuais.
-- Jornada Objetivo → AS-IS → Gaps → TO-BE → Transição → Governança.
-- Guia e representação ilustrativa C4, glossário e explicações de perguntas.
-- Texto padronizado para CRM, lacunas e handoff para Engenharia.
-- Projetos salvos, reabertura e edição no mesmo navegador.
+O workflow [.github/workflows/deploy.yml](.github/workflows/deploy.yml) roda typecheck, testes e build a cada push e pull request, e publica no GitHub Pages a cada push na `main`. No repositório, **Settings → Pages → Source** deve estar em **GitHub Actions**.
 
 ## Organização
 
-- `config/tracks.ts`: catálogo de trilhas, perguntas e sinais.
-- `lib/discovery-rules.ts`: reconhecimento textual e cobertura por respostas.
-- `lib/local-discoveries.ts`: armazenamento local versionado.
-- `app/page.tsx`: interface e geração dos blocos comerciais.
-- `components/ui/`: componentes shadcn/ui usados pela interface.
-- `tests/lab/`: testes de regras e de preservação dos dados locais.
+| Caminho | Conteúdo |
+| --- | --- |
+| `config/tracks.ts` | Trilhas: perguntas de qualificação, perguntas técnicas, sinais e especialista |
+| `config/phases.ts` | Fases da jornada |
+| `config/learning-notes.ts` | Explicações “Por que perguntamos isso?” |
+| `lib/qualification.ts` | Maturidade, próxima ação e textos de CRM, handoff e resumo do discovery |
+| `lib/ai-assist.ts` | Pedido para a IA e leitura da resposta |
+| `lib/discovery-rules.ts` | Reconhecimento por palavras-chave e cobertura |
+| `lib/local-discoveries.ts` | Projetos salvos, importação e exportação |
+| `app/App.tsx` | Navegação e rascunhos de trabalho |
+| `app/views/` | Telas |
+| `app/components/` | Componentes do app (painel de IA, sugestões, perguntas…) |
+| `components/ui/` | Componentes shadcn/ui |
+| `tests/lab/` | Testes das regras, textos, IA e armazenamento |
 
-O reconhecimento por palavras-chave sugere trilhas e precisa de revisão humana. A porcentagem representa perguntas preenchidas, não qualidade ou validação das evidências.
+Para mudar perguntas ou trilhas, edite `config/tracks.ts`: o site, o pedido para a IA e os textos se ajustam sozinhos.
+
+O reconhecimento por palavras-chave e as sugestões da IA precisam de revisão humana. A porcentagem de cobertura mede perguntas preenchidas, não a qualidade das evidências.

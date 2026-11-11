@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { listDiscoveries, saveDiscovery } from "../../lib/local-discoveries.ts";
+import { deleteDiscovery, exportDiscoveries, importDiscoveries, listDiscoveries, saveDiscovery } from "../../lib/local-discoveries.ts";
 
 function memory() {
   const entries = new Map();
@@ -29,4 +29,22 @@ test("invalid existing storage is never overwritten", () => {
 test("rejects empty titles and reports write failures", () => {
   assert.throws(() => saveDiscovery(memory(), { ...draft, title: " " }));
   assert.throws(() => saveDiscovery({ getItem: () => null, setItem: () => { throw new Error("Quota exceeded"); } }, draft), /Quota exceeded/);
+});
+test("delete, export and import move projects between browsers without losing newer work", () => {
+  const source = memory();
+  const a = saveDiscovery(source, draft);
+  const b = saveDiscovery(source, { ...draft, title: "Outro cliente" });
+  const file = exportDiscoveries(source, [a.id]);
+  assert.equal(JSON.parse(file).projects.length, 1);
+
+  const target = memory();
+  assert.deepEqual(importDiscoveries(target, exportDiscoveries(source)), { imported: 2, skipped: 0 });
+  const newer = saveDiscovery(target, { ...a, title: "Editado aqui" });
+  assert.deepEqual(importDiscoveries(target, file), { imported: 0, skipped: 1 });
+  assert.equal(listDiscoveries(target).find(project => project.id === a.id).title, newer.title);
+
+  deleteDiscovery(target, b.id);
+  assert.deepEqual(listDiscoveries(target).map(project => project.id), [a.id]);
+  assert.throws(() => importDiscoveries(target, "não é json"), /JSON válido/);
+  assert.throws(() => importDiscoveries(target, '{"projects":[{"id":1}]}'), /não contém projetos/);
 });
