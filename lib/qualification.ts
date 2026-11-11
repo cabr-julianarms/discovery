@@ -23,13 +23,16 @@ export function answerOrPending(value?: string) {
   return value?.trim() || PENDING;
 }
 
+/** Procura o nome do cliente em rótulos comuns de BANT, CRM e e-mail. */
 export function extractCompany(text: string) {
-  return (
-    text.match(/Nome da Empresa:\s*([^\n.]+)/i)?.[1]?.trim() ??
-    text.match(/Empresa:\s*([^\n.]+)/i)?.[1]?.trim() ??
-    text.match(/Cliente:\s*([^\n.]+)/i)?.[1]?.trim() ??
-    ""
-  );
+  const labels = ["Nome da Empresa", "Empresa", "Cliente", "Conta", "Account", "Organização", "Oportunidade"];
+  for (const label of labels) {
+    const found = text.match(new RegExp(`(?:^|\\n|\\s)${label}\\s*[:\\-–]\\s*([^\\n]+)`, "i"))?.[1];
+    // corta em ponto final de frase, mas mantém "S.A." e "Ltda."
+    const name = found?.split(/\.\s+(?=[A-ZÀ-Ú])/)[0].replace(/[.;,]\s*$/, "").trim();
+    if (name && name.length <= 80) return name;
+  }
+  return "";
 }
 
 /** Remove e-mails e telefones. Não é anonimização completa. */
@@ -40,6 +43,8 @@ export function sanitizeContext(text: string) {
 }
 
 export type QualificationState = {
+  /** Nome do cliente informado pela pessoa; tem prioridade sobre o detectado no texto. */
+  client?: string;
   context: string;
   selectedTracks: string[];
   answers: Record<string, string>;
@@ -62,7 +67,7 @@ export function assessQualification(state: QualificationState, catalog: TrackInf
   const has = (question: string) => !!state.answers[question]?.trim();
   const firstMeetingAnswered = firstMeetingQuestions.filter(has).length;
   const technicalAnswered = questions.filter(({ question }) => has(question)).length;
-  const company = extractCompany(state.context);
+  const company = state.client?.trim() || extractCompany(state.context);
 
   const maturity = !firstMeetingAnswered
     ? "Contexto ainda não coletado"

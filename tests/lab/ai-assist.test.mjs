@@ -65,6 +65,7 @@ test("parses fenced JSON with trailing comma, maps ids back to questions and nev
   assert.equal(result.insights.opportunities[0].title, "FinOps");
   assert.deepEqual(result.insights.risks, ["Licenças Windows"]);
   assert.equal(result.warnings.length, 2);
+  assert.equal(result.client, "");
 });
 
 test("explains clearly when the pasted text is not usable", () => {

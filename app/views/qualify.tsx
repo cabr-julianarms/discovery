@@ -2,6 +2,7 @@ import { ArrowRight, ClipboardPaste, RotateCcw, SearchCheck, Sparkles, Users } f
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { tracks } from "@/config/tracks";
 import { detectTrackIds } from "@/lib/discovery-rules";
@@ -10,6 +11,7 @@ import {
   assessQualification,
   buildCrmSummary,
   buildEngineeringHandoff,
+  extractCompany,
   firstMeetingQuestions,
   sanitizeContext,
   type QualificationState,
@@ -41,12 +43,18 @@ export function QualifyView({
   const identify = () => {
     const allKnownContext = [state.context, ...firstMeetingQuestions.map((question) => state.answers[question] ?? "")].join("\n");
     const detected = detectTrackIds(allKnownContext, tracks);
-    onChange({ ...state, selectedTracks: [...new Set([...state.selectedTracks, ...detected])], analyzed: true });
-  };
-
-  const applyAi = ({ addTracks, answers, insights }: AiApply) =>
     onChange({
       ...state,
+      client: state.client?.trim() || extractCompany(state.context),
+      selectedTracks: [...new Set([...state.selectedTracks, ...detected])],
+      analyzed: true,
+    });
+  };
+
+  const applyAi = ({ client, addTracks, answers, insights }: AiApply) =>
+    onChange({
+      ...state,
+      client: state.client?.trim() || client || extractCompany(state.context),
       analyzed: true,
       selectedTracks: [...new Set([...state.selectedTracks, ...addTracks])],
       answers: { ...answers, ...Object.fromEntries(Object.entries(state.answers).filter(([, value]) => value.trim())) },
@@ -55,7 +63,7 @@ export function QualifyView({
 
   const beginTechnicalDiscovery = () =>
     onStartDiscovery({
-      title: a.company || "Oportunidade qualificada",
+      title: a.company,
       outcome: state.answers[firstMeetingQuestions[0]]?.trim() || "Aprofundar a oportunidade com o especialista adequado",
       problem: sanitizeContext(
         state.context.trim() ||
@@ -70,7 +78,8 @@ export function QualifyView({
       status: "draft",
     });
 
-  const hasWork = !!(state.context.trim() || Object.values(state.answers).some((value) => value.trim()));
+  const hasWork = !!(state.client?.trim() || state.context.trim() || Object.values(state.answers).some((value) => value.trim()));
+  const detectedClient = extractCompany(state.context);
 
   return (
     <>
@@ -109,6 +118,24 @@ export function QualifyView({
                 </div>
               </CardHeader>
               <CardContent className="px-5 md:px-6">
+                <label className="mb-4 block space-y-1.5 text-xs font-medium text-ink-soft">
+                  Cliente
+                  <Input
+                    value={state.client ?? ""}
+                    onChange={(event) => onChange({ ...state, client: event.target.value })}
+                    placeholder={detectedClient ? `Detectado no texto: ${detectedClient}` : "Nome da empresa (ex.: Transportadora Veloz)"}
+                    className="h-10 bg-surface-2 text-sm"
+                  />
+                  {!state.client?.trim() && detectedClient && (
+                    <button
+                      type="button"
+                      onClick={() => onChange({ ...state, client: detectedClient })}
+                      className="text-xs font-normal text-brand hover:text-brand-strong"
+                    >
+                      Usar “{detectedClient}”
+                    </button>
+                  )}
+                </label>
                 <Textarea
                   value={state.context}
                   onChange={(event) => onChange({ ...state, context: event.target.value })}

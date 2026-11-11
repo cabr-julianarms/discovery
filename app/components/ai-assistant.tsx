@@ -16,7 +16,13 @@ import {
 } from "@/lib/ai-assist";
 import { CopyButton } from "./copy-button";
 
-export type AiApply = { addTracks: string[]; answers: Record<string, string>; insights: AiInsights; workloads: AiWorkload[] };
+export type AiApply = {
+  client: string;
+  addTracks: string[];
+  answers: Record<string, string>;
+  insights: AiInsights;
+  workloads: AiWorkload[];
+};
 
 const assistants = [
   { name: "ChatGPT", url: "https://chatgpt.com/" },
@@ -103,6 +109,7 @@ export function AiAssistant({
         .map((answer) => [answer.question, (answer.inferred ? INFERRED_PREFIX : "") + answer.answer]),
     );
     onApply({
+      client: result.client,
       addTracks: pickedTracks,
       answers,
       insights: result.insights,
@@ -181,6 +188,12 @@ export function AiAssistant({
 
             {result && input && (
               <Step number={3} title="Revise o que vai entrar">
+                {result.client && (
+                  <p className="mb-3 text-sm text-ink-soft">
+                    Cliente identificado: <span className="font-semibold text-ink">{result.client}</span>{" "}
+                    <span className="text-xs text-ink-faint">(usado só se o campo Cliente estiver vazio)</span>
+                  </p>
+                )}
                 {result.insights.summary && (
                   <p className="rounded-xl bg-ai-soft p-3 text-sm leading-6 text-ai-ink">{result.insights.summary}</p>
                 )}

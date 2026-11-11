@@ -44,6 +44,8 @@ export type AiInsights = {
 };
 
 export type AiResult = {
+  /** Nome do cliente, quando aparece no material. */
+  client: string;
   insights: AiInsights;
   tracks: AiTrackSuggestion[];
   answers: AiAnswerSuggestion[];
@@ -81,6 +83,7 @@ export function buildPrompt(input: AiPromptInput) {
 
   const strategies = input.strategies ?? [];
   const example = {
+    cliente: "Nome da empresa cliente, se aparecer no material; senão, vazio.",
     resumo: "Duas ou três frases sobre a oportunidade.",
     trilhas: [{ id: input.catalog[0]?.id ?? "migration", motivo: "Por que se aplica, citando o material.", confianca: "alta" }],
     respostas: [{ id: "P01", resposta: "Resposta objetiva.", evidencia: "Trecho copiado do material.", tipo: "explicito" }],
@@ -248,7 +251,8 @@ export function parseAiResponse(
   if (!tracks.length && !answers.length && !workloads.length && !insights.clientQuestions.length && !insights.opportunities.length)
     throw new Error("A resposta veio vazia. Confira se colou a resposta inteira da IA.");
 
-  return { insights, tracks, answers, workloads, warnings };
+  const client = text(root.cliente).slice(0, 80);
+  return { client: /^nome da empresa/i.test(client) ? "" : client, insights, tracks, answers, workloads, warnings };
 }
 
 /** Texto gravado na resposta quando a IA deduziu em vez de encontrar no material. */

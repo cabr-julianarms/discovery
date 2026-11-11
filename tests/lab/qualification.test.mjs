@@ -70,3 +70,14 @@ test("discovery summary includes pillars and the 7 Rs table", () => {
   assert.match(summary, /ESTRATÉGIA DE MIGRAÇÃO POR WORKLOAD \(7 Rs\)\n- ERP: Rehost \(Mover como está\) — prazo\n- BI: A definir\n\n/);
   assert.match(summary, /LACUNAS\n- Segurança\?/);
 });
+
+test("client name: typed name wins, otherwise common labels are detected", async () => {
+  const { extractCompany } = await import("../../lib/qualification.ts");
+  assert.equal(extractCompany("Nome da Empresa: ACME Ltda.\nQuer migrar."), "ACME Ltda");
+  assert.equal(extractCompany("Cliente: Transportadora Veloz S.A. Querem migrar."), "Transportadora Veloz S.A");
+  assert.equal(extractCompany("Conta - Banco Exemplo\nOportunidade de dados"), "Banco Exemplo");
+  assert.equal(extractCompany("Reunião com o time de TI sobre migração."), "");
+  const state = { ...emptyQualification(), client: "Veloz", context: "Empresa: Outra" };
+  assert.match(buildCrmSummary(state, catalog), /Cliente: Veloz/);
+  assert.match(buildCrmSummary({ ...state, client: " " }, catalog), /Cliente: Outra/);
+});

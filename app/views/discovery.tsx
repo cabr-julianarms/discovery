@@ -147,9 +147,10 @@ export function DiscoveryView({
   const updateAnswer = (question: string, value: string) =>
     onChange({ ...draft, answers: { ...draft.answers, [question]: value } });
 
-  const applyAi = ({ addTracks, answers, insights, workloads: suggested }: AiApply) =>
+  const applyAi = ({ client, addTracks, answers, insights, workloads: suggested }: AiApply) =>
     onChange({
       ...draft,
+      title: draft.title.trim() ? draft.title : client,
       tracks: [...new Set([...draft.tracks, ...addTracks])],
       answers: { ...answers, ...Object.fromEntries(Object.entries(draft.answers).filter(([, value]) => value.trim())) },
       insights,
@@ -184,9 +185,13 @@ export function DiscoveryView({
                   <Input
                     value={draft.title}
                     onChange={(event) => updateField("title", event.target.value)}
-                    placeholder="Ex.: Modernização da plataforma"
-                    className="h-10 bg-surface-2"
+                    placeholder="Nome do cliente (ex.: Transportadora Veloz)"
+                    autoFocus={!draft.title.trim()}
+                    className={`h-10 ${draft.title.trim() ? "bg-surface-2" : "border-warn-line bg-warn-soft ring-2 ring-warn-line/60"}`}
                   />
+                  {!draft.title.trim() && (
+                    <span className="block text-[11px] font-normal text-warn">Informe o cliente para salvar o projeto automaticamente.</span>
+                  )}
                 </label>
                 <label className="space-y-1.5 text-xs font-medium text-ink-soft">
                   Resultado esperado
