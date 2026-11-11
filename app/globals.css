@@ -2,6 +2,9 @@
 @import "tw-animate-css";
 @import "../vendor/shadcn-tailwind-4.13.0.css";
 
+/* O Lab é um tema claro: estilos "dark:" só valem com a classe .dark, nunca pelo modo escuro do sistema. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @utility scrollbar-thin {
   scrollbar-width: thin;
 }
@@ -18,42 +21,132 @@
   scrollbar-gutter: stable;
 }
 
+/*
+ * Paleta do Lab. Use as classes semânticas (text-ink, bg-canvas, border-line…)
+ * em vez de cores soltas: mudar um token muda o site inteiro.
+ */
 :root {
-  --background: #f4f6f8;
-  --foreground: #17283f;
+  /* Superfícies e texto */
+  --lab-canvas: #f3f5f8;
+  --lab-surface-2: #f7f9fb;
+  --lab-line: #e2e8ef;
+  --lab-line-strong: #c8d4e0;
+  --lab-ink: #142338;
+  --lab-ink-soft: #3c4f66;
+  --lab-ink-muted: #607186;
+  --lab-ink-faint: #8a98a9;
+
+  /* Marca: azul + marinho */
+  --lab-brand: #2f78c4;
+  --lab-brand-soft: #edf5fe;
+  --lab-brand-line: #bfd8f0;
+  --lab-brand-strong: #1f5c99;
+  --lab-action: #17395d;
+  --lab-action-hover: #20476f;
+  --lab-navy: #0d1a2a;
+  --lab-navy-2: #14263c;
+  --lab-navy-line: #253850;
+  --lab-navy-text: #d8e2ef;
+  --lab-navy-muted: #7f91a7;
+  --lab-sky: #5aa8ff;
+  --lab-sky-soft: #9dccff;
+  --lab-mint: #53d8a0;
+
+  /* Estados */
+  --lab-success: #2b8a60;
+  --lab-success-soft: #ecf7f2;
+  --lab-success-line: #c0e2d1;
+  --lab-success-ink: #1b4a35;
+  --lab-warn: #8f6200;
+  --lab-warn-soft: #fff7e1;
+  --lab-warn-line: #efd99a;
+  --lab-warn-ink: #4a3d1c;
+  --lab-danger: #b53d4a;
+  --lab-danger-soft: #fdf3f4;
+  --lab-danger-line: #efcdd1;
+  --lab-ai: #7c3aed;
+  --lab-ai-hover: #6d28d9;
+  --lab-ai-soft: #f6f1ff;
+  --lab-ai-line: #dccbf6;
+  --lab-ai-ink: #3f2766;
+  --lab-ai-muted: #76669a;
+
+  /* Tokens do shadcn/ui apontando para a paleta */
+  --background: var(--lab-canvas);
+  --foreground: var(--lab-ink);
   --card: #ffffff;
-  --card-foreground: #171717;
+  --card-foreground: var(--lab-ink);
   --popover: #ffffff;
-  --popover-foreground: #171717;
-  --primary: #337fca;
-  --primary-foreground: #fafafa;
-  --secondary: #f5f5f5;
-  --secondary-foreground: #171717;
-  --muted: #f5f5f5;
-  --muted-foreground: #737373;
-  --accent: #f5f5f5;
-  --accent-foreground: #171717;
-  --destructive: #e7000b;
-  --border: #e5e5e5;
-  --input: #e5e5e5;
-  --ring: #5aa8ff;
+  --popover-foreground: var(--lab-ink);
+  --primary: var(--lab-action);
+  --primary-foreground: #ffffff;
+  --secondary: var(--lab-surface-2);
+  --secondary-foreground: var(--lab-ink-soft);
+  --muted: var(--lab-surface-2);
+  --muted-foreground: var(--lab-ink-muted);
+  --accent: var(--lab-brand-soft);
+  --accent-foreground: var(--lab-brand-strong);
+  --destructive: var(--lab-danger);
+  --border: var(--lab-line);
+  --input: var(--lab-line);
+  --ring: var(--lab-brand);
   --chart-1: #f54900;
   --chart-2: #009689;
   --chart-3: #104e64;
   --chart-4: #ffb900;
   --chart-5: #fe9a00;
   --radius: 0.625rem;
-  --sidebar: #0a1523;
-  --sidebar-foreground: #d8e2ef;
-  --sidebar-primary: #5aa8ff;
-  --sidebar-primary-foreground: #fafafa;
-  --sidebar-accent: #14253b;
-  --sidebar-accent-foreground: #9dccff;
-  --sidebar-border: #203149;
-  --sidebar-ring: #5aa8ff;
+  --sidebar: var(--lab-navy);
+  --sidebar-foreground: var(--lab-navy-text);
+  --sidebar-primary: var(--lab-sky);
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: var(--lab-navy-2);
+  --sidebar-accent-foreground: var(--lab-sky-soft);
+  --sidebar-border: var(--lab-navy-line);
+  --sidebar-ring: var(--lab-sky);
 }
 
 @theme inline {
+  --color-canvas: var(--lab-canvas);
+  --color-surface-2: var(--lab-surface-2);
+  --color-line: var(--lab-line);
+  --color-line-strong: var(--lab-line-strong);
+  --color-ink: var(--lab-ink);
+  --color-ink-soft: var(--lab-ink-soft);
+  --color-ink-muted: var(--lab-ink-muted);
+  --color-ink-faint: var(--lab-ink-faint);
+  --color-brand: var(--lab-brand);
+  --color-brand-soft: var(--lab-brand-soft);
+  --color-brand-line: var(--lab-brand-line);
+  --color-brand-strong: var(--lab-brand-strong);
+  --color-action: var(--lab-action);
+  --color-action-hover: var(--lab-action-hover);
+  --color-navy: var(--lab-navy);
+  --color-navy-2: var(--lab-navy-2);
+  --color-navy-line: var(--lab-navy-line);
+  --color-navy-text: var(--lab-navy-text);
+  --color-navy-muted: var(--lab-navy-muted);
+  --color-sky: var(--lab-sky);
+  --color-sky-soft: var(--lab-sky-soft);
+  --color-mint: var(--lab-mint);
+  --color-success: var(--lab-success);
+  --color-success-soft: var(--lab-success-soft);
+  --color-success-line: var(--lab-success-line);
+  --color-success-ink: var(--lab-success-ink);
+  --color-warn: var(--lab-warn);
+  --color-warn-soft: var(--lab-warn-soft);
+  --color-warn-line: var(--lab-warn-line);
+  --color-warn-ink: var(--lab-warn-ink);
+  --color-danger: var(--lab-danger);
+  --color-danger-soft: var(--lab-danger-soft);
+  --color-danger-line: var(--lab-danger-line);
+  --color-ai: var(--lab-ai);
+  --color-ai-hover: var(--lab-ai-hover);
+  --color-ai-soft: var(--lab-ai-soft);
+  --color-ai-line: var(--lab-ai-line);
+  --color-ai-ink: var(--lab-ai-ink);
+  --color-ai-muted: var(--lab-ai-muted);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -89,18 +182,33 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
-  --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    "Liberation Mono", "Courier New", monospace;
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+@layer base {
+  *, ::before, ::after {
+    border-color: var(--border);
+    outline-color: color-mix(in srgb, var(--ring) 50%, transparent);
+  }
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--lab-canvas);
+  color: var(--lab-ink);
+  font-family: var(--font-sans);
+  font-feature-settings: "cv11", "ss01";
 }
 
 button, input, textarea { font: inherit; }
+
+::selection { background: var(--lab-brand-line); }
 
 .grid-gap {
   background-image: radial-gradient(circle at 1px 1px, rgba(44, 75, 107, 0.08) 1px, transparent 0);

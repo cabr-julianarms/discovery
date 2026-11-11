@@ -83,7 +83,7 @@ export function QualifyView({
             <Button
               variant="outline"
               size="sm"
-              className="border-[#c9d6e3] text-[#52657d]"
+              className="border-line-strong text-ink-soft"
               onClick={() => window.confirm("Começar uma nova qualificação? O conteúdo atual desta tela será apagado.") && onReset()}
             >
               <RotateCcw /> Nova qualificação
@@ -94,14 +94,14 @@ export function QualifyView({
       <div className="flex-1 p-5 md:p-8">
         <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_360px]">
           <div className="min-w-0 space-y-5">
-            <Card className="gap-5 border-[#dce3eb] py-5 shadow-none">
+            <Card className="gap-5 border-line py-5 shadow-none">
               <CardHeader className="px-5 md:px-6">
                 <div className="flex items-start gap-3">
-                  <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-[#e8f3ff] text-[#337fca]">
+                  <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-brand-soft text-brand">
                     <ClipboardPaste className="size-5" />
                   </div>
                   <div>
-                    <CardTitle className="text-lg text-[#17283f]">Comece com o que você já sabe</CardTitle>
+                    <CardTitle className="text-lg text-ink">Comece com o que você já sabe</CardTitle>
                     <CardDescription className="mt-2">
                       Cole qualquer contexto disponível. Se ainda não houver material, comece sem ele e use as cinco perguntas padrão.
                     </CardDescription>
@@ -113,10 +113,10 @@ export function QualifyView({
                   value={state.context}
                   onChange={(event) => onChange({ ...state, context: event.target.value })}
                   placeholder="Cole um BANT, e-mail, Take Notes, mensagem do cliente ou suas anotações. Este campo é opcional."
-                  className="min-h-44 resize-y bg-[#fbfcfd] text-sm leading-6"
+                  className="min-h-44 resize-y bg-surface-2 text-sm leading-6"
                 />
                 <div className="mt-4 flex flex-wrap items-center gap-3">
-                  <Button onClick={identify} className="bg-[#17395d] hover:bg-[#234d78]">
+                  <Button onClick={identify} className="bg-action hover:bg-action-hover">
                     <SearchCheck /> {state.context.trim() ? "Identificar trilhas" : "Começar sem contexto"}
                   </Button>
                   <AiAssistant
@@ -134,15 +134,15 @@ export function QualifyView({
                     })}
                     onApply={applyAi}
                     trigger={(open) => (
-                      <Button onClick={open} variant="outline" className="border-[#c9b3f2] bg-[#faf7ff] text-[#5b2bb5] hover:bg-[#f3ecff]">
+                      <Button onClick={open} variant="outline" className="border-ai-line bg-ai-soft text-ai hover:bg-ai-soft">
                         <Sparkles /> Analisar com IA
                       </Button>
                     )}
                   />
                 </div>
-                <p className="mt-3 text-xs leading-5 text-[#718196]">
-                  <strong className="font-medium text-[#52657d]">Identificar trilhas</strong> usa palavras-chave e roda no navegador.{" "}
-                  <strong className="font-medium text-[#52657d]">Analisar com IA</strong> também preenche lacunas e sugere perguntas e frentes, usando o assistente de IA que você já tem.
+                <p className="mt-3 text-xs leading-5 text-ink-muted">
+                  <strong className="font-medium text-ink-soft">Identificar trilhas</strong> usa palavras-chave e roda no navegador.{" "}
+                  <strong className="font-medium text-ink-soft">Analisar com IA</strong> também preenche lacunas e sugere perguntas e frentes, usando o assistente de IA que você já tem.
                 </p>
               </CardContent>
             </Card>
@@ -150,14 +150,14 @@ export function QualifyView({
             {state.insights && <InsightsCard insights={state.insights} onClear={() => onChange({ ...state, insights: undefined })} />}
 
             {state.analyzed && (
-              <Card className="gap-0 overflow-hidden border-[#bcd7ef] py-0 shadow-none">
-                <div className="border-b border-[#d9e8f5] bg-[#f0f7fd] px-5 py-4 md:px-6">
-                  <p className="font-semibold text-[#1d3048]">As cinco perguntas de toda primeira conversa</p>
-                  <p className="mt-1 text-xs text-[#687d91]">
+              <Card className="gap-0 overflow-hidden border-brand-line py-0 shadow-none">
+                <div className="border-b border-brand-line bg-brand-soft px-5 py-4 md:px-6">
+                  <p className="font-semibold text-ink">As cinco perguntas de toda primeira conversa</p>
+                  <p className="mt-1 text-xs text-ink-muted">
                     A ordem não muda. Registre o que souber e use “não sabe” quando essa for a resposta real.
                   </p>
                 </div>
-                <div className="divide-y divide-[#e5eaf0]">
+                <div className="divide-y divide-line">
                   {firstMeetingQuestions.map((question, index) => (
                     <QuestionField
                       key={question}
@@ -169,9 +169,9 @@ export function QualifyView({
                     />
                   ))}
                 </div>
-                <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[#d9e8f5] bg-[#f8fbfe] px-5 py-4 md:px-6">
-                  <span className="text-xs text-[#687d91]">{a.firstMeetingAnswered}/5 respostas registradas</span>
-                  <Button onClick={identify} variant="outline" className="border-[#9abbd8] text-[#17395d]">
+                <div className="flex flex-wrap items-center justify-between gap-3 border-t border-brand-line bg-surface-2 px-5 py-4 md:px-6">
+                  <span className="text-xs text-ink-muted">{a.firstMeetingAnswered}/5 respostas registradas</span>
+                  <Button onClick={identify} variant="outline" className="border-line-strong text-action">
                     <SearchCheck /> Atualizar trilhas
                   </Button>
                 </div>
@@ -179,9 +179,9 @@ export function QualifyView({
             )}
 
             {state.analyzed && (
-              <Card className="gap-5 border-[#dce3eb] py-5 shadow-none">
+              <Card className="gap-5 border-line py-5 shadow-none">
                 <CardHeader className="px-5 md:px-6">
-                  <CardTitle className="text-lg text-[#17283f]">Confirme as frentes da oportunidade</CardTitle>
+                  <CardTitle className="text-lg text-ink">Confirme as frentes da oportunidade</CardTitle>
                   <CardDescription>
                     As sugestões vêm de todo o contexto registrado. Marque ou desmarque o que fizer sentido antes de avançar.
                   </CardDescription>
@@ -196,14 +196,14 @@ export function QualifyView({
             )}
 
             {a.selected.length > 0 && (
-              <Card className="gap-0 overflow-hidden border-[#dce3eb] py-0 shadow-none">
-                <div className="border-b border-[#e1e7ed] bg-[#f7f9fb] px-5 py-4 md:px-6">
-                  <p className="font-semibold text-[#1d3048]">Roteiro da primeira reunião</p>
-                  <p className="mt-1 text-xs text-[#75849a]">
+              <Card className="gap-0 overflow-hidden border-line py-0 shadow-none">
+                <div className="border-b border-line bg-surface-2 px-5 py-4 md:px-6">
+                  <p className="font-semibold text-ink">Roteiro da primeira reunião</p>
+                  <p className="mt-1 text-xs text-ink-muted">
                     Perguntas repetíveis para coletar contexto, não para fechar arquitetura ou escopo.
                   </p>
                 </div>
-                <div className="divide-y divide-[#e5eaf0]">
+                <div className="divide-y divide-line">
                   {a.questions.map(({ track, question }, index) => (
                     <QuestionField
                       key={`${track.id}-${question}`}
@@ -220,29 +220,29 @@ export function QualifyView({
             )}
 
             {state.analyzed && (
-              <Card className="gap-0 overflow-hidden border-[#b8ddcc] py-0 shadow-none">
-                <div className="border-b border-[#d7ebe2] bg-[#eef9f4] px-5 py-5 md:px-6">
+              <Card className="gap-0 overflow-hidden border-success-line py-0 shadow-none">
+                <div className="border-b border-success-line bg-success-soft px-5 py-5 md:px-6">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
-                      <p className="text-[10px] font-semibold uppercase tracking-[.16em] text-[#468168]">Saída padrão da primeira reunião</p>
-                      <p className="mt-1 text-lg font-semibold text-[#17382b]">Sempre os mesmos blocos. Sempre uma próxima ação.</p>
+                      <p className="text-[10px] font-semibold uppercase tracking-[.16em] text-success">Saída padrão da primeira reunião</p>
+                      <p className="mt-1 text-lg font-semibold text-success-ink">Sempre os mesmos blocos. Sempre uma próxima ação.</p>
                     </div>
-                    <Badge className="bg-[#d9f0e5] text-[#286149]">{a.maturity}</Badge>
+                    <Badge className="bg-success-soft text-success">{a.maturity}</Badge>
                   </div>
                 </div>
                 <CardContent className="grid gap-4 p-5 md:grid-cols-2 md:p-6">
-                  <div className="rounded-2xl border border-[#dce5e0] bg-white p-4">
-                    <p className="text-sm font-semibold text-[#24364e]">Resumo para o CRM</p>
-                    <p className="mt-2 text-xs leading-5 text-[#718196]">
+                  <div className="rounded-2xl border border-line bg-white p-4">
+                    <p className="text-sm font-semibold text-ink">Resumo para o CRM</p>
+                    <p className="mt-2 text-xs leading-5 text-ink-muted">
                       Objetivo, cenário, pessoas, tecnologia, prazo, lacunas, sugestões da IA e encaminhamento, em ordem fixa.
                     </p>
-                    <CopyButton value={crmOutput} copiedLabel="Resumo copiado" icon={<ClipboardPaste />} className="mt-4 w-full bg-[#17395d] hover:bg-[#234d78]">
+                    <CopyButton value={crmOutput} copiedLabel="Resumo copiado" icon={<ClipboardPaste />} className="mt-4 w-full">
                       Copiar resumo para CRM
                     </CopyButton>
                   </div>
-                  <div className="rounded-2xl border border-[#dce5e0] bg-white p-4">
-                    <p className="text-sm font-semibold text-[#24364e]">Handoff para Engenharia</p>
-                    <p className="mt-2 text-xs leading-5 text-[#718196]">
+                  <div className="rounded-2xl border border-line bg-white p-4">
+                    <p className="text-sm font-semibold text-ink">Handoff para Engenharia</p>
+                    <p className="mt-2 text-xs leading-5 text-ink-muted">
                       Entrega contexto, respostas técnicas e expectativa da próxima conversa sem recomeçar do zero.
                     </p>
                     <CopyButton
@@ -251,18 +251,18 @@ export function QualifyView({
                       icon={<Users />}
                       disabled={!a.selected.length}
                       variant="outline"
-                      className="mt-4 w-full border-[#9abbd8] text-[#17395d]"
+                      className="mt-4 w-full border-line-strong text-action"
                     >
                       Copiar handoff técnico
                     </CopyButton>
                   </div>
-                  <details className="rounded-2xl border border-[#dce5e0] bg-white p-4 text-xs md:col-span-2">
-                    <summary className="cursor-pointer font-medium text-[#337fca]">Pré-visualizar o resumo para CRM</summary>
-                    <pre className="mt-3 max-h-80 overflow-auto whitespace-pre-wrap font-mono text-[11px] leading-5 text-[#52657d]">{crmOutput}</pre>
+                  <details className="rounded-2xl border border-line bg-white p-4 text-xs md:col-span-2">
+                    <summary className="cursor-pointer font-medium text-brand">Pré-visualizar o resumo para CRM</summary>
+                    <pre className="mt-3 max-h-80 overflow-auto whitespace-pre-wrap font-mono text-[11px] leading-5 text-ink-soft">{crmOutput}</pre>
                   </details>
-                  <div className="rounded-2xl bg-[#102235] p-4 text-white md:col-span-2">
-                    <p className="text-[10px] font-semibold uppercase tracking-[.16em] text-[#70d7a9]">Próxima ação recomendada</p>
-                    <p className="mt-2 text-sm leading-6 text-[#dbe7f4]">{a.nextAction}</p>
+                  <div className="rounded-2xl bg-navy p-4 text-white md:col-span-2">
+                    <p className="text-[10px] font-semibold uppercase tracking-[.16em] text-mint">Próxima ação recomendada</p>
+                    <p className="mt-2 text-sm leading-6 text-navy-text">{a.nextAction}</p>
                   </div>
                 </CardContent>
               </Card>
@@ -270,10 +270,10 @@ export function QualifyView({
           </div>
 
           <aside className="space-y-5 xl:sticky xl:top-5 xl:self-start">
-            <Card className="gap-4 border-[#1f3550] bg-[#0e1b2b] py-5 text-white shadow-none">
+            <Card className="gap-4 border-navy-line bg-navy py-5 text-white shadow-none">
               <CardHeader className="px-5">
                 <div className="flex items-center gap-2">
-                  <Users className="size-4 text-[#53d8a0]" />
+                  <Users className="size-4 text-mint" />
                   <CardTitle className="text-sm">Quem chamar</CardTitle>
                 </div>
               </CardHeader>
@@ -281,34 +281,34 @@ export function QualifyView({
                 {a.selected.length ? (
                   a.selected.map((track) => (
                     <div key={track.id} className="rounded-xl bg-white/5 p-3">
-                      <p className="text-[10px] uppercase tracking-[.14em] text-[#71849b]">{track.name}</p>
-                      <p className="mt-1 text-sm font-medium text-[#dbe7f4]">{track.specialist}</p>
+                      <p className="text-[10px] uppercase tracking-[.14em] text-navy-muted">{track.name}</p>
+                      <p className="mt-1 text-sm font-medium text-navy-text">{track.specialist}</p>
                     </div>
                   ))
                 ) : (
-                  <p className="text-xs leading-5 text-[#8192a7]">
+                  <p className="text-xs leading-5 text-navy-muted">
                     Registre o contexto ou comece pelas cinco perguntas para receber a indicação.
                   </p>
                 )}
               </CardContent>
             </Card>
-            <Card className="gap-3 border-[#dce3eb] py-5 shadow-none">
+            <Card className="gap-3 border-line py-5 shadow-none">
               <CardHeader className="px-5">
-                <CardTitle className="text-sm text-[#1d3048]">Preparar o próximo passo</CardTitle>
+                <CardTitle className="text-sm text-ink">Preparar o próximo passo</CardTitle>
               </CardHeader>
-              <CardContent className="px-5 text-xs leading-5 text-[#6d7d92]">
+              <CardContent className="px-5 text-xs leading-5 text-ink-muted">
                 {a.nextAction} “Não sei” é uma resposta válida: ela vira uma lacuna explícita, não uma informação inventada.
                 <Button
                   onClick={beginTechnicalDiscovery}
                   disabled={!a.selected.length || !a.technicalAnswered}
-                  className="mt-4 w-full bg-[#17395d] hover:bg-[#234d78]"
+                  className="mt-4 w-full"
                 >
                   Levar para discovery técnico <ArrowRight />
                 </Button>
                 {(!a.selected.length || !a.technicalAnswered) && (
-                  <p className="mt-2 text-[11px] text-[#8a98a9]">Libera quando houver ao menos uma trilha marcada e uma pergunta da trilha respondida.</p>
+                  <p className="mt-2 text-[11px] text-ink-faint">Libera quando houver ao menos uma trilha marcada e uma pergunta da trilha respondida.</p>
                 )}
-                <p className="mt-3 text-[11px] text-[#8a98a9]">Esta tela é salva automaticamente neste navegador.</p>
+                <p className="mt-3 text-[11px] text-ink-faint">Esta tela é salva automaticamente neste navegador.</p>
               </CardContent>
             </Card>
           </aside>

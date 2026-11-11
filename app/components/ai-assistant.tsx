@@ -12,10 +12,11 @@ import {
   type AiInsights,
   type AiPromptInput,
   type AiResult,
+  type AiWorkload,
 } from "@/lib/ai-assist";
 import { CopyButton } from "./copy-button";
 
-export type AiApply = { addTracks: string[]; answers: Record<string, string>; insights: AiInsights };
+export type AiApply = { addTracks: string[]; answers: Record<string, string>; insights: AiInsights; workloads: AiWorkload[] };
 
 const assistants = [
   { name: "ChatGPT", url: "https://chatgpt.com/" },
@@ -23,17 +24,17 @@ const assistants = [
 ];
 
 const confidenceStyle = {
-  alta: "bg-[#dff3e9] text-[#26694b]",
-  media: "bg-[#eef3f8] text-[#4d6177]",
-  baixa: "bg-[#fff1e3] text-[#9a5a12]",
+  alta: "bg-success-soft text-success",
+  media: "bg-surface-2 text-ink-soft",
+  baixa: "bg-warn-soft text-warn",
 } as const;
 
 function Step({ number, title, done, children }: { number: number; title: string; done?: boolean; children: ReactNode }) {
   return (
-    <section className="rounded-2xl border border-[#e1e7ed] bg-white p-4 md:p-5">
-      <p className="flex items-center gap-2 text-sm font-semibold text-[#1d3048]">
+    <section className="rounded-2xl border border-line bg-white p-4 md:p-5">
+      <p className="flex items-center gap-2 text-sm font-semibold text-ink">
         <span
-          className={`grid size-6 place-items-center rounded-full font-mono text-[11px] ${done ? "bg-[#53d8a0] text-[#07261a]" : "bg-[#17395d] text-white"}`}
+          className={`grid size-6 place-items-center rounded-full font-mono text-[11px] ${done ? "bg-mint text-navy" : "bg-action text-white"}`}
         >
           {number}
         </span>
@@ -63,6 +64,7 @@ export function AiAssistant({
   const [error, setError] = useState("");
   const [pickedTracks, setPickedTracks] = useState<string[]>([]);
   const [pickedAnswers, setPickedAnswers] = useState<string[]>([]);
+  const [pickedWorkloads, setPickedWorkloads] = useState<string[]>([]);
 
   const start = () => {
     const snapshot = buildInput();
@@ -86,6 +88,7 @@ export function AiAssistant({
           .map((track) => track.id),
       );
       setPickedAnswers(parsed.answers.filter((answer) => !answer.inferred).map((answer) => answer.question));
+      setPickedWorkloads(parsed.workloads.map((workload) => workload.name));
     } catch (problem) {
       setResult(null);
       setError(problem instanceof Error ? problem.message : "Não foi possível ler a resposta.");
@@ -99,7 +102,12 @@ export function AiAssistant({
         .filter((answer) => pickedAnswers.includes(answer.question))
         .map((answer) => [answer.question, (answer.inferred ? INFERRED_PREFIX : "") + answer.answer]),
     );
-    onApply({ addTracks: pickedTracks, answers, insights: result.insights });
+    onApply({
+      addTracks: pickedTracks,
+      answers,
+      insights: result.insights,
+      workloads: result.workloads.filter((workload) => pickedWorkloads.includes(workload.name)),
+    });
     setOpen(false);
   };
 
@@ -113,10 +121,10 @@ export function AiAssistant({
     <>
       {trigger(start)}
       <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent side="right" className="w-full gap-0 overflow-y-auto bg-[#f4f6f8] p-0 sm:max-w-2xl">
-          <SheetHeader className="border-b border-[#e1e7ed] bg-white p-5">
-            <SheetTitle className="flex items-center gap-2 text-[#17283f]">
-              <Sparkles className="size-5 text-[#8b5cf6]" /> Analisar com IA
+        <SheetContent side="right" className="w-full gap-0 overflow-y-auto bg-canvas p-0 sm:max-w-2xl">
+          <SheetHeader className="border-b border-line bg-white p-5">
+            <SheetTitle className="flex items-center gap-2 text-ink">
+              <Sparkles className="size-5 text-ai" /> Analisar com IA
             </SheetTitle>
             <SheetDescription>
               Sem chave de API: você usa o assistente de IA que já tem. O site prepara o pedido e depois lê a resposta.
@@ -126,26 +134,26 @@ export function AiAssistant({
           <div className="space-y-4 p-5">
             <Step number={1} title="Copie o pedido e cole no assistente de IA" done={!!response}>
               <div className="flex flex-wrap gap-2">
-                <CopyButton value={prompt} className="bg-[#17395d] hover:bg-[#234d78]" copiedLabel="Pedido copiado">
+                <CopyButton value={prompt} className="bg-action hover:bg-action-hover" copiedLabel="Pedido copiado">
                   Copiar pedido
                 </CopyButton>
                 {assistants.map((assistant) => (
-                  <Button key={assistant.name} asChild variant="outline" className="border-[#c9d6e3] text-[#17395d]">
+                  <Button key={assistant.name} asChild variant="outline" className="border-line-strong text-action">
                     <a href={assistant.url} target="_blank" rel="noreferrer">
                       Abrir {assistant.name} <ExternalLink />
                     </a>
                   </Button>
                 ))}
               </div>
-              <p className="mt-3 flex gap-2 rounded-xl bg-[#eef6ff] p-3 text-xs leading-5 text-[#3f5d7a]">
-                <ShieldCheck className="mt-0.5 size-4 shrink-0 text-[#337fca]" />
+              <p className="mt-3 flex gap-2 rounded-xl bg-brand-soft p-3 text-xs leading-5 text-ink-soft">
+                <ShieldCheck className="mt-0.5 size-4 shrink-0 text-brand" />
                 Use a conta de IA aprovada pela empresa para dados de cliente. E-mails e telefones são removidos do pedido automaticamente; nomes e outros dados, não.
               </p>
-              <details className="mt-3 text-xs text-[#607087]">
-                <summary className="cursor-pointer font-medium text-[#337fca]">
+              <details className="mt-3 text-xs text-ink-muted">
+                <summary className="cursor-pointer font-medium text-brand">
                   Ver o pedido ({prompt.length.toLocaleString("pt-BR")} caracteres)
                 </summary>
-                <pre className="mt-2 max-h-64 overflow-auto whitespace-pre-wrap rounded-xl border border-[#e1e7ed] bg-[#fbfcfd] p-3 font-mono text-[11px] leading-5">
+                <pre className="mt-2 max-h-64 overflow-auto whitespace-pre-wrap rounded-xl border border-line bg-surface-2 p-3 font-mono text-[11px] leading-5">
                   {prompt}
                 </pre>
               </details>
@@ -159,13 +167,13 @@ export function AiAssistant({
                   setError("");
                 }}
                 placeholder="Cole a resposta inteira, incluindo o bloco ```json"
-                className="min-h-32 resize-y bg-[#fbfcfd] font-mono text-xs"
+                className="min-h-32 resize-y bg-surface-2 font-mono text-xs"
               />
-              <Button onClick={read} disabled={!response.trim()} className="mt-3 bg-[#17395d] hover:bg-[#234d78]">
+              <Button onClick={read} disabled={!response.trim()} className="mt-3">
                 Ler resposta <ArrowRight />
               </Button>
               {error && (
-                <p className="mt-3 flex gap-2 rounded-xl border border-[#edc9ce] bg-[#fff7f8] p-3 text-xs leading-5 text-[#a04450]">
+                <p className="mt-3 flex gap-2 rounded-xl border border-danger-line bg-danger-soft p-3 text-xs leading-5 text-danger">
                   <TriangleAlert className="mt-0.5 size-4 shrink-0" /> {error}
                 </p>
               )}
@@ -174,30 +182,30 @@ export function AiAssistant({
             {result && input && (
               <Step number={3} title="Revise o que vai entrar">
                 {result.insights.summary && (
-                  <p className="rounded-xl bg-[#f7f2ff] p-3 text-sm leading-6 text-[#3f3357]">{result.insights.summary}</p>
+                  <p className="rounded-xl bg-ai-soft p-3 text-sm leading-6 text-ai-ink">{result.insights.summary}</p>
                 )}
 
                 {(newTracks.length > 0 || keptTracks.length > 0) && (
                   <div className="mt-4">
-                    <p className="text-xs font-semibold uppercase tracking-[.14em] text-[#7a899c]">Trilhas</p>
+                    <p className="text-xs font-semibold uppercase tracking-[.14em] text-ink-faint">Trilhas</p>
                     <div className="mt-2 space-y-2">
                       {newTracks.map((track) => (
-                        <label key={track.id} className="flex cursor-pointer gap-3 rounded-xl border border-[#e1e7ed] p-3">
+                        <label key={track.id} className="flex cursor-pointer gap-3 rounded-xl border border-line p-3">
                           <Checkbox
                             checked={pickedTracks.includes(track.id)}
                             onCheckedChange={() => setPickedTracks(toggle(pickedTracks, track.id))}
                             className="mt-0.5"
                           />
                           <span className="text-sm">
-                            <span className="font-semibold text-[#23344b]">Adicionar {trackName(track.id)}</span>{" "}
+                            <span className="font-semibold text-ink">Adicionar {trackName(track.id)}</span>{" "}
                             <Badge className={`ml-1 text-[10px] ${confidenceStyle[track.confidence]}`}>confiança {track.confidence}</Badge>
-                            {track.reason && <span className="mt-1 block text-xs leading-5 text-[#718196]">{track.reason}</span>}
+                            {track.reason && <span className="mt-1 block text-xs leading-5 text-ink-muted">{track.reason}</span>}
                           </span>
                         </label>
                       ))}
                       {keptTracks.map((track) => (
-                        <p key={track.id} className="rounded-xl bg-[#f7f9fb] p-3 text-xs leading-5 text-[#718196]">
-                          <span className="font-semibold text-[#53667e]">{trackName(track.id)}</span> já estava marcada. {track.reason}
+                        <p key={track.id} className="rounded-xl bg-surface-2 p-3 text-xs leading-5 text-ink-muted">
+                          <span className="font-semibold text-ink-soft">{trackName(track.id)}</span> já estava marcada. {track.reason}
                         </p>
                       ))}
                     </div>
@@ -206,23 +214,23 @@ export function AiAssistant({
 
                 {result.answers.length > 0 && (
                   <div className="mt-4">
-                    <p className="text-xs font-semibold uppercase tracking-[.14em] text-[#7a899c]">
+                    <p className="text-xs font-semibold uppercase tracking-[.14em] text-ink-faint">
                       Respostas encontradas no material
                     </p>
                     <div className="mt-2 space-y-2">
                       {result.answers.map((answer) => (
-                        <label key={answer.question} className="flex cursor-pointer gap-3 rounded-xl border border-[#e1e7ed] p-3">
+                        <label key={answer.question} className="flex cursor-pointer gap-3 rounded-xl border border-line p-3">
                           <Checkbox
                             checked={pickedAnswers.includes(answer.question)}
                             onCheckedChange={() => setPickedAnswers(toggle(pickedAnswers, answer.question))}
                             className="mt-0.5"
                           />
-                          <span className="min-w-0 text-xs leading-5 text-[#607087]">
-                            <span className="block font-medium text-[#53667e]">{answer.question}</span>
-                            <span className="mt-1 block text-sm text-[#23344b]">{answer.answer}</span>
+                          <span className="min-w-0 text-xs leading-5 text-ink-muted">
+                            <span className="block font-medium text-ink-soft">{answer.question}</span>
+                            <span className="mt-1 block text-sm text-ink">{answer.answer}</span>
                             {answer.evidence && <span className="mt-1 block italic">“{answer.evidence}”</span>}
                             {answer.inferred && (
-                              <Badge className="mt-2 bg-[#fff4d6] text-[10px] text-[#8a6100]">
+                              <Badge className="mt-2 bg-warn-soft text-[10px] text-warn">
                                 Dedução da IA · entra marcada como “A confirmar”
                               </Badge>
                             )}
@@ -233,14 +241,41 @@ export function AiAssistant({
                   </div>
                 )}
 
-                <div className="mt-4 rounded-xl border border-dashed border-[#d9c8f5] bg-[#fbf8ff] p-3 text-xs leading-5 text-[#5d4f75]">
+                {result.workloads.length > 0 && (
+                  <div className="mt-4">
+                    <p className="text-xs font-semibold uppercase tracking-[.14em] text-ink-faint">Estratégia por workload (7 Rs)</p>
+                    <div className="mt-2 space-y-2">
+                      {result.workloads.map((workload) => {
+                        const strategy = input.strategies?.find((item) => item.id === workload.strategy);
+                        return (
+                          <label key={workload.name} className="flex cursor-pointer gap-3 rounded-xl border border-line p-3">
+                            <Checkbox
+                              checked={pickedWorkloads.includes(workload.name)}
+                              onCheckedChange={() => setPickedWorkloads(toggle(pickedWorkloads, workload.name))}
+                              className="mt-0.5"
+                            />
+                            <span className="min-w-0 text-xs leading-5 text-ink-muted">
+                              <span className="block text-sm text-ink">
+                                <span className="font-semibold">{workload.name}</span> →{" "}
+                                {strategy ? `${strategy.name} (${strategy.label})` : "a definir"}
+                              </span>
+                              {workload.note && <span className="mt-1 block">{workload.note}</span>}
+                            </span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                <div className="mt-4 rounded-xl border border-dashed border-ai-line bg-ai-soft p-3 text-xs leading-5 text-ai-ink">
                   Também serão guardados: {result.insights.clientQuestions.length} pergunta(s) para o cliente,{" "}
                   {result.insights.opportunities.length} frente(s) a explorar e {result.insights.risks.length} risco(s).
                   Eles aparecem no card “Sugestões da IA” e entram nos textos de CRM e handoff.
                 </div>
 
                 {result.warnings.length > 0 && (
-                  <details className="mt-3 text-xs text-[#8a6100]">
+                  <details className="mt-3 text-xs text-warn">
                     <summary className="cursor-pointer">{result.warnings.length} item(ns) ignorado(s)</summary>
                     <ul className="mt-2 list-disc pl-5">
                       {result.warnings.map((warning, index) => (
@@ -250,7 +285,7 @@ export function AiAssistant({
                   </details>
                 )}
 
-                <Button onClick={apply} className="mt-4 w-full bg-[#7c3aed] hover:bg-[#6d28d9]">
+                <Button onClick={apply} className="mt-4 w-full bg-ai hover:bg-ai-hover">
                   <Sparkles /> {applyLabel}
                 </Button>
               </Step>

@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { deleteDiscovery, exportDiscoveries, importDiscoveries, listDiscoveries, saveDiscovery } from "../../lib/local-discoveries.ts";
+import { deleteDiscovery, exportDiscoveries, importDiscoveries, listDiscoveries, mergeWorkloads, saveDiscovery } from "../../lib/local-discoveries.ts";
 
 function memory() {
   const entries = new Map();
@@ -47,4 +47,20 @@ test("delete, export and import move projects between browsers without losing ne
   assert.deepEqual(listDiscoveries(target).map(project => project.id), [a.id]);
   assert.throws(() => importDiscoveries(target, "não é json"), /JSON válido/);
   assert.throws(() => importDiscoveries(target, '{"projects":[{"id":1}]}'), /não contém projetos/);
+});
+
+test("workloads are saved, validated and merged without overwriting decisions", () => {
+  const storage = memory();
+  const saved = saveDiscovery(storage, { ...draft, workloads: [{ name: "ERP", strategy: "rehost", note: "" }] });
+  assert.deepEqual(listDiscoveries(storage)[0].workloads, saved.workloads);
+  assert.throws(() => importDiscoveries(memory(), JSON.stringify([{ ...saved, workloads: [{ name: 1 }] }])), /não contém projetos/);
+  const merged = mergeWorkloads(
+    [{ name: "ERP", strategy: "rehost", note: "decidido" }, { name: "BI", strategy: "", note: "" }],
+    [{ name: "erp", strategy: "refactor", note: "IA" }, { name: "bi", strategy: "replatform", note: "IA" }, { name: "Intranet", strategy: "retire", note: "" }],
+  );
+  assert.deepEqual(merged, [
+    { name: "ERP", strategy: "rehost", note: "decidido" },
+    { name: "BI", strategy: "replatform", note: "IA" },
+    { name: "Intranet", strategy: "retire", note: "" },
+  ]);
 });

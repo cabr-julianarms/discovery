@@ -1,5 +1,7 @@
 import type { AiInsights } from "./ai-assist.ts";
 
+export type Workload = { name: string; strategy: string; note: string };
+
 export type DiscoveryDraft = {
   id?: string;
   title: string;
@@ -8,6 +10,8 @@ export type DiscoveryDraft = {
   tracks: string[];
   answers: Record<string, string>;
   insights?: AiInsights;
+  /** Estratégia de migração (7 Rs) por workload. */
+  workloads?: Workload[];
   status?: string;
   created_at?: string;
   updated_at?: string;
@@ -34,6 +38,8 @@ function isDraft(value: unknown): value is DiscoveryDraft {
     !!row.answers && typeof row.answers === "object" && !Array.isArray(row.answers) &&
     Object.values(row.answers).every(item => typeof item === "string") &&
     (row.insights === undefined || (!!row.insights && typeof row.insights === "object" && !Array.isArray(row.insights))) &&
+    (row.workloads === undefined || (Array.isArray(row.workloads) && row.workloads.every(item =>
+      !!item && typeof item === "object" && ["name", "strategy", "note"].every(field => typeof (item as Record<string, unknown>)[field] === "string")))) &&
     [row.status, row.created_at, row.updated_at].every(item => item === undefined || typeof item === "string");
 }
 
@@ -55,10 +61,22 @@ export function saveDiscovery(storage: Storage, draft: DiscoveryDraft): Discover
   const saved = {
     ...draft, title: draft.title.trim(), id: draft.id || crypto.randomUUID(),
     tracks: [...draft.tracks], answers: { ...draft.answers },
+    ...(draft.workloads ? { workloads: draft.workloads.map(item => ({ ...item })) } : {}),
     created_at: previous?.created_at ?? now, updated_at: now,
   };
   storage.setItem(key, JSON.stringify([saved, ...projects.filter(project => project.id !== saved.id)]));
   return saved;
+}
+
+/** Junta workloads sugeridos aos existentes, sem sobrescrever estratégia já definida. */
+export function mergeWorkloads(current: Workload[], incoming: Workload[]): Workload[] {
+  const result = current.map(item => ({ ...item }));
+  for (const item of incoming) {
+    const existing = result.find(row => row.name.trim().toLowerCase() === item.name.trim().toLowerCase());
+    if (!existing) result.push({ ...item });
+    else if (!existing.strategy) Object.assign(existing, { strategy: item.strategy, note: existing.note || item.note });
+  }
+  return result;
 }
 
 export function deleteDiscovery(storage: Storage, id: string) {

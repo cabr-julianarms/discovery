@@ -8,12 +8,14 @@ Site estático (React + Vite + Tailwind), sem backend e sem chave de API. Public
 
 - **Qualificar oportunidade**: contexto livre, cinco perguntas universais, trilhas sugeridas por palavras-chave e perguntas de qualificação por trilha. Gera o resumo para CRM e o handoff para Engenharia.
 - **Discovery técnico**: jornada Objetivo → AS-IS → Gaps → TO-BE → Transição → Governança, com “Por que perguntamos isso?” em todas as perguntas, cobertura e resumo copiável.
+- **Pilares do Google Cloud Architecture Framework**: aba com perguntas transversais (operação, segurança, confiabilidade, custo e desempenho), válidas para qualquer trilha.
+- **Estratégia por workload (7 Rs)**: com a trilha de Migração, a aba Workloads registra o destino de cada sistema (retire, retain, rehost, relocate, repurchase, replatform, refactor). A IA também sugere.
 - **Analisar com IA (sem API)**: o site monta um pedido com o contexto, as respostas e as lacunas. A pessoa cola no assistente de IA que já usa (ChatGPT, Gemini…) e cola a resposta de volta. O site lê o JSON e mostra para revisão:
   - trilhas sugeridas, com motivo e confiança;
   - respostas encontradas no material, com o trecho de evidência. Deduções da IA entram marcadas como “[A confirmar]”;
   - perguntas para o cliente, frentes a explorar e riscos, que ficam no projeto e entram nos textos de CRM e handoff.
 - **Projetos**: salvamento automático no navegador, exclusão, exportação e importação em `.json` para backup ou para passar a um colega.
-- Guias de TOGAF, C4, trilhas e glossário.
+- Guias de TOGAF, C4, Architecture Framework, 7 Rs, trilhas e glossário.
 
 ## Dados e privacidade
 
@@ -43,6 +45,7 @@ O workflow [.github/workflows/deploy.yml](.github/workflows/deploy.yml) roda typ
 | --- | --- |
 | `config/tracks.ts` | Trilhas: perguntas de qualificação, perguntas técnicas, sinais e especialista |
 | `config/phases.ts` | Fases da jornada |
+| `config/frameworks.ts` | Pilares do Architecture Framework e 7 Rs de migração |
 | `config/learning-notes.ts` | Explicações “Por que perguntamos isso?” |
 | `lib/qualification.ts` | Maturidade, próxima ação e textos de CRM, handoff e resumo do discovery |
 | `lib/ai-assist.ts` | Pedido para a IA e leitura da resposta |
@@ -52,6 +55,7 @@ O workflow [.github/workflows/deploy.yml](.github/workflows/deploy.yml) roda typ
 | `app/views/` | Telas |
 | `app/components/` | Componentes do app (painel de IA, sugestões, perguntas…) |
 | `components/ui/` | Componentes shadcn/ui |
+| `app/globals.css` | Paleta de cores (tokens) e tipografia |
 | `tests/lab/` | Testes das regras, textos, IA e armazenamento |
 
 Para mudar perguntas ou trilhas, edite `config/tracks.ts`: o site, o pedido para a IA e os textos se ajustam sozinhos.

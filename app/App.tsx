@@ -6,6 +6,7 @@ import { emptyDraft, type DiscoveryDraft } from "@/lib/local-discoveries";
 import { emptyQualification, type QualificationState } from "@/lib/qualification";
 import { AppSidebar, viewIds, type View } from "./components/app-sidebar";
 import { DiscoveryView } from "./views/discovery";
+import { MigrationGuideView, PillarsGuideView } from "./views/framework-guides";
 import { C4GuideView, GlossaryView, TogafGuideView, TracksGuideView } from "./views/guides";
 import { OverviewView } from "./views/overview";
 import { QualifyView } from "./views/qualify";
@@ -74,6 +75,10 @@ export default function App() {
         return <TogafGuideView />;
       case "c4":
         return <C4GuideView />;
+      case "pillars":
+        return <PillarsGuideView />;
+      case "migration":
+        return <MigrationGuideView />;
       case "tracks":
         return (
           <TracksGuideView
@@ -90,8 +95,8 @@ export default function App() {
   return (
     <TooltipProvider>
       <SidebarProvider>
-        <AppSidebar active={view} onNavigate={setView} />
-        <SidebarInset className="min-h-svh bg-[#f4f6f8] text-[#17283f]">{content}</SidebarInset>
+        <AppSidebar active={view} onNavigate={setView} currentTitle={draft.title.trim() || undefined} />
+        <SidebarInset className="min-h-svh bg-canvas text-ink">{content}</SidebarInset>
       </SidebarProvider>
     </TooltipProvider>
   );

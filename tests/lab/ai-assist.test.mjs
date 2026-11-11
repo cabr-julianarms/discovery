@@ -72,3 +72,24 @@ test("explains clearly when the pasted text is not usable", () => {
   assert.throws(() => parseAiResponse("{ isto não é json }", input), /JSON válido/);
   assert.throws(() => parseAiResponse('{"resumo": "só isso"}', input), /vazia/);
 });
+
+test("asks for and reads the 7 Rs per workload only when strategies are provided", () => {
+  const strategies = [{ id: "rehost", name: "Rehost", label: "Mover" }, { id: "retire", name: "Retire", label: "Desativar" }];
+  const withStrategies = { ...input, strategies, workloads: [{ name: "ERP", strategy: "" }] };
+  const prompt = buildPrompt(withStrategies);
+  assert.match(prompt, /ESTRATÉGIA DE MIGRAÇÃO POR WORKLOAD \(7 Rs\)[\s\S]*- rehost: Rehost \(Mover\)[\s\S]*Workloads já registrados: ERP \(sem estratégia\)/);
+  assert.doesNotMatch(buildPrompt(input), /7 Rs/);
+
+  const raw = JSON.stringify({ workloads: [
+    { nome: "ERP", estrategia: "Rehost", motivo: "Prazo curto" },
+    { nome: "erp", estrategia: "retire", motivo: "duplicado" },
+    { nome: "Intranet", estrategia: "lift", motivo: "?" },
+  ] });
+  const result = parseAiResponse(raw, withStrategies);
+  assert.deepEqual(result.workloads, [
+    { name: "ERP", strategy: "rehost", note: "Prazo curto" },
+    { name: "Intranet", strategy: "", note: "?" },
+  ]);
+  assert.match(result.warnings.join(), /Estratégia desconhecida para Intranet/);
+  assert.throws(() => parseAiResponse(raw, input), /vazia/);
+});

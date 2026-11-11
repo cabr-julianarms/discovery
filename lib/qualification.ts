@@ -172,6 +172,12 @@ export type DiscoverySummaryInput = {
   tracks: string[];
   answers: Record<string, string>;
   insights?: AiInsights;
+  workloads?: { name: string; strategy: string; note: string }[];
+};
+
+export type SummaryExtras = {
+  pillars?: readonly { name: string; question: string }[];
+  strategies?: readonly { id: string; name: string; label: string }[];
 };
 
 export function buildDiscoverySummary(
@@ -179,12 +185,18 @@ export function buildDiscoverySummary(
   catalog: TrackInfo[],
   phaseList: { id: string; name: string }[],
   phaseQuestions: Record<string, string>,
+  extras: SummaryExtras = {},
 ) {
   const selected = catalog.filter((track) => draft.tracks.includes(track.id));
-  const byPhase = phaseList.map((phase) => ({
-    phase,
-    questions: phase.id === "asis" ? selected.flatMap((track) => track.questions) : [phaseQuestions[phase.id]].filter(Boolean),
-  }));
+  const byPhase = [
+    ...phaseList.map((phase) => ({
+      phase,
+      questions: phase.id === "asis" ? selected.flatMap((track) => track.questions) : [phaseQuestions[phase.id]].filter(Boolean),
+    })),
+    ...(extras.pillars?.length
+      ? [{ phase: { id: "pillars", name: "Pilares do Architecture Framework" }, questions: extras.pillars.map((pillar) => pillar.question) }]
+      : []),
+  ];
   const all = [...new Set(byPhase.flatMap((item) => item.questions))];
   const missing = all.filter((question) => !draft.answers[question]?.trim());
   const lines = [
@@ -200,6 +212,18 @@ export function buildDiscoverySummary(
     if (!answered.length) continue;
     lines.push("", phase.name.toUpperCase());
     for (const question of answered) lines.push(`- ${question}`, `  ${draft.answers[question].trim()}`);
+  }
+  const workloads = (draft.workloads ?? []).filter((item) => item.name.trim());
+  if (workloads.length) {
+    const label = (id: string) => {
+      const strategy = extras.strategies?.find((item) => item.id === id);
+      return strategy ? `${strategy.name} (${strategy.label})` : "A definir";
+    };
+    lines.push(
+      "",
+      "ESTRATÉGIA DE MIGRAÇÃO POR WORKLOAD (7 Rs)",
+      ...workloads.map((item) => `- ${item.name.trim()}: ${label(item.strategy)}${item.note.trim() ? ` — ${item.note.trim()}` : ""}`),
+    );
   }
   lines.push("", "LACUNAS", ...(missing.length ? missing.map((item) => `- ${item}`) : ["- Nenhuma"]));
   for (const [title, items] of insightSections(draft.insights)) lines.push("", title, ...items);

@@ -18,28 +18,28 @@ export function TogafGuideView() {
           {phases.map((phase, index) => {
             const Icon = phase.icon;
             return (
-              <Card key={phase.id} className="gap-4 border-[#dce3eb] py-5 shadow-none">
+              <Card key={phase.id} className="gap-4 border-line py-5 shadow-none">
                 <CardHeader className="px-5">
                   <div className="flex items-start gap-4">
-                    <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-[#eaf4fe] text-[#337fca]">
+                    <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-brand-soft text-brand">
                       <Icon className="size-5" />
                     </div>
                     <div>
-                      <p className="font-mono text-[10px] uppercase tracking-[.18em] text-[#8b9aac]">
+                      <p className="font-mono text-[10px] uppercase tracking-[.18em] text-ink-faint">
                         Etapa {String(index + 1).padStart(2, "0")}
                       </p>
-                      <CardTitle className="mt-1 text-lg text-[#1d3048]">{phase.name}</CardTitle>
+                      <CardTitle className="mt-1 text-lg text-ink">{phase.name}</CardTitle>
                       <CardDescription className="mt-2">{phase.subtitle}</CardDescription>
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent className="px-5 text-sm leading-6 text-[#65758a]">{phase.guide}</CardContent>
+                <CardContent className="px-5 text-sm leading-6 text-ink-muted">{phase.guide}</CardContent>
               </Card>
             );
           })}
         </div>
-        <div className="mt-5 rounded-2xl border border-[#cfe0f0] bg-[#edf6ff] p-5 text-sm leading-6 text-[#45627e]">
-          <strong className="text-[#245d91]">Regra do Lab:</strong> usar o mínimo de método necessário para reduzir ambiguidade. O nome
+        <div className="mt-5 rounded-2xl border border-brand-line bg-brand-soft p-5 text-sm leading-6 text-ink-soft">
+          <strong className="text-brand-strong">Regra do Lab:</strong> usar o mínimo de método necessário para reduzir ambiguidade. O nome
           TOGAF aparece para ensinar a lente; o discovery continua orientado à decisão.
         </div>
       </div>
@@ -68,18 +68,18 @@ export function C4GuideView() {
           {c4Levels.map((level, index) => {
             const Icon = level.icon;
             return (
-              <Card key={level.name} className={`gap-4 border-[#dce3eb] py-5 shadow-none ${index === 4 ? "md:col-span-2 xl:col-span-1" : ""}`}>
+              <Card key={level.name} className={`gap-4 border-line py-5 shadow-none ${index === 4 ? "md:col-span-2 xl:col-span-1" : ""}`}>
                 <CardHeader className="px-5">
                   <div className="flex items-center justify-between">
-                    <div className="grid size-10 place-items-center rounded-xl bg-[#111f31] text-[#75b7f8]">
+                    <div className="grid size-10 place-items-center rounded-xl bg-navy text-sky">
                       <Icon className="size-5" />
                     </div>
-                    <span className="font-mono text-xs text-[#a1adba]">C{index < 4 ? index + 1 : "+"}</span>
+                    <span className="font-mono text-xs text-ink-faint">C{index < 4 ? index + 1 : "+"}</span>
                   </div>
-                  <CardTitle className="mt-4 text-lg text-[#1d3048]">{level.name}</CardTitle>
+                  <CardTitle className="mt-4 text-lg text-ink">{level.name}</CardTitle>
                   <CardDescription>{level.subtitle}</CardDescription>
                 </CardHeader>
-                <CardContent className="px-5 text-sm leading-6 text-[#65758a]">{level.text}</CardContent>
+                <CardContent className="px-5 text-sm leading-6 text-ink-muted">{level.text}</CardContent>
               </Card>
             );
           })}
@@ -114,31 +114,31 @@ export function TracksGuideView({
               <button
                 key={track.id}
                 onClick={() => setSelectedTracks(active ? selectedTracks.filter((id) => id !== track.id) : [...selectedTracks, track.id])}
-                className={`rounded-2xl border p-5 text-left transition ${active ? "border-[#78afe5] bg-[#f0f7ff]" : "border-[#dce3eb] bg-white hover:-translate-y-0.5 hover:border-[#aebdcd]"}`}
+                className={`rounded-2xl border p-5 text-left transition ${active ? "border-brand-line bg-brand-soft" : "border-line bg-white hover:-translate-y-0.5 hover:border-line-strong"}`}
               >
                 <div className="flex items-center justify-between">
                   <span className="grid size-10 place-items-center rounded-xl" style={{ backgroundColor: `${track.color}20`, color: track.color }}>
                     <Icon className="size-5" />
                   </span>
                   {active && (
-                    <span className="grid size-6 place-items-center rounded-full bg-[#337fca] text-white">
+                    <span className="grid size-6 place-items-center rounded-full bg-brand text-white">
                       <Check className="size-3.5" />
                     </span>
                   )}
                 </div>
-                <h3 className="mt-5 font-semibold text-[#1d3048]">{track.name}</h3>
-                <p className="mt-2 text-sm leading-6 text-[#69798e]">{track.short}</p>
-                <p className="mt-3 text-xs text-[#69798e]">
-                  <span className="font-medium text-[#53667e]">Especialista:</span> {track.specialist}
+                <h3 className="mt-5 font-semibold text-ink">{track.name}</h3>
+                <p className="mt-2 text-sm leading-6 text-ink-muted">{track.short}</p>
+                <p className="mt-3 text-xs text-ink-muted">
+                  <span className="font-medium text-ink-soft">Especialista:</span> {track.specialist}
                 </p>
-                <p className="mt-3 text-xs font-medium text-[#337fca]">
+                <p className="mt-3 text-xs font-medium text-brand">
                   {track.qualificationQuestions.length} perguntas de qualificação · {track.questions.length} de discovery técnico
                 </p>
               </button>
             );
           })}
         </div>
-        <Button onClick={onStart} className="mt-6 bg-[#17395d] hover:bg-[#234d78]">
+        <Button onClick={onStart} className="mt-6">
           Usar trilhas selecionadas <ArrowRight />
         </Button>
       </div>
@@ -169,11 +169,11 @@ export function GlossaryView() {
         description="Conceitos usados pelo Lab, traduzidos para o contexto de discovery e pré-vendas."
       />
       <div className="flex-1 p-5 md:p-8">
-        <div className="overflow-hidden rounded-2xl border border-[#dce3eb] bg-white">
+        <div className="overflow-hidden rounded-2xl border border-line bg-white">
           {terms.map(([term, meaning], index) => (
-            <div key={term} className={`grid gap-2 p-5 md:grid-cols-[220px_1fr] ${index ? "border-t border-[#e3e8ee]" : ""}`}>
-              <p className="font-semibold text-[#23364f]">{term}</p>
-              <p className="text-sm leading-6 text-[#69798e]">{meaning}</p>
+            <div key={term} className={`grid gap-2 p-5 md:grid-cols-[220px_1fr] ${index ? "border-t border-line" : ""}`}>
+              <p className="font-semibold text-ink">{term}</p>
+              <p className="text-sm leading-6 text-ink-muted">{meaning}</p>
             </div>
           ))}
         </div>

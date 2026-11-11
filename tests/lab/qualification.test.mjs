@@ -58,3 +58,15 @@ test("discovery summary groups answers by phase and lists gaps", () => {
   assert.match(summary, /AS-IS\n- Q técnica\?\n  Resposta/);
   assert.match(summary, /LACUNAS\n- Visão\?/);
 });
+
+test("discovery summary includes pillars and the 7 Rs table", () => {
+  const summary = buildDiscoverySummary(
+    { title: "ACME", outcome: "", problem: "", tracks: [], answers: { "Custo?": "R$ 50 mil/mês" },
+      workloads: [{ name: "ERP", strategy: "rehost", note: "prazo" }, { name: "BI", strategy: "", note: "" }, { name: " ", strategy: "", note: "" }] },
+    catalog, [], {},
+    { pillars: [{ name: "Custo", question: "Custo?" }, { name: "Segurança", question: "Segurança?" }], strategies: [{ id: "rehost", name: "Rehost", label: "Mover como está" }] },
+  );
+  assert.match(summary, /PILARES DO ARCHITECTURE FRAMEWORK\n- Custo\?\n  R\$ 50 mil\/mês/);
+  assert.match(summary, /ESTRATÉGIA DE MIGRAÇÃO POR WORKLOAD \(7 Rs\)\n- ERP: Rehost \(Mover como está\) — prazo\n- BI: A definir\n\n/);
+  assert.match(summary, /LACUNAS\n- Segurança\?/);
+});

@@ -78,72 +78,72 @@ export function SavedProjectsView({
                 event.target.value = "";
               }}
             />
-            <Button variant="outline" size="sm" className="border-[#c9d6e3] text-[#17395d]" onClick={() => fileInput.current?.click()}>
+            <Button variant="outline" size="sm" className="border-line-strong text-action" onClick={() => fileInput.current?.click()}>
               <Upload /> Importar
             </Button>
             <Button
               variant="outline"
               size="sm"
-              className="border-[#c9d6e3] text-[#17395d]"
+              className="border-line-strong text-action"
               disabled={!projects.length}
               onClick={() => downloadText(`discovery-backup-${fileDate()}.json`, exportDiscoveries(window.localStorage))}
             >
               <Download /> Exportar todos
             </Button>
-            <Button size="sm" onClick={onNew} className="bg-[#17395d] hover:bg-[#234d78]">
+            <Button size="sm" onClick={onNew} className="bg-action hover:bg-action-hover">
               <Plus /> Novo discovery
             </Button>
           </>
         }
       />
       <div className="flex-1 p-5 md:p-8">
-        {message && <p className="mb-5 rounded-xl border border-[#cfe0f0] bg-[#edf6ff] p-3 text-sm text-[#2b5a85]">{message}</p>}
+        {message && <p className="mb-5 rounded-xl border border-brand-line bg-brand-soft p-3 text-sm text-brand-strong">{message}</p>}
         {error ? (
-          <div className="rounded-2xl border border-[#edc9ce] bg-[#fff7f8] p-5 text-sm text-[#a04450]">{error}</div>
+          <div className="rounded-2xl border border-danger-line bg-danger-soft p-5 text-sm text-danger">{error}</div>
         ) : projects.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-[#cbd6e1] bg-white p-10 text-center">
-            <FolderOpen className="mx-auto size-8 text-[#8da0b5]" />
-            <h2 className="mt-4 font-semibold text-[#23364f]">Nenhum discovery salvo ainda</h2>
-            <p className="mt-2 text-sm text-[#718196]">
+          <div className="rounded-2xl border border-dashed border-line-strong bg-white p-10 text-center">
+            <FolderOpen className="mx-auto size-8 text-ink-faint" />
+            <h2 className="mt-4 font-semibold text-ink">Nenhum discovery salvo ainda</h2>
+            <p className="mt-2 text-sm text-ink-muted">
               Crie um discovery e dê um nome: ele é salvo automaticamente. Ou importe um arquivo recebido de um colega.
             </p>
           </div>
         ) : (
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {projects.map((project) => (
-              <Card key={project.id} className="gap-4 border-[#dce3eb] py-5 shadow-none">
+              <Card key={project.id} className="gap-4 border-line py-5 shadow-none">
                 <CardHeader className="px-5">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <CardTitle className="truncate text-lg text-[#1d3048]">{project.title}</CardTitle>
+                      <CardTitle className="truncate text-lg text-ink">{project.title}</CardTitle>
                       <CardDescription className="mt-2 line-clamp-2">{project.outcome || "Resultado ainda não informado"}</CardDescription>
                     </div>
                     {project.insights && (
-                      <Badge variant="outline" className="shrink-0 border-[#d9c8f5] bg-[#f7f2ff] text-[#6d3fc4]">
+                      <Badge variant="outline" className="shrink-0 border-ai-line bg-ai-soft text-ai">
                         <Sparkles /> IA
                       </Badge>
                     )}
                   </div>
                   {project.updated_at && (
-                    <p className="text-[11px] text-[#8a98a9]">Atualizado em {new Date(project.updated_at).toLocaleString("pt-BR")}</p>
+                    <p className="text-[11px] text-ink-faint">Atualizado em {new Date(project.updated_at).toLocaleString("pt-BR")}</p>
                   )}
                 </CardHeader>
                 <CardContent className="px-5">
                   <div className="flex flex-wrap gap-2">
                     {project.tracks.map((id) => (
-                      <Badge key={id} variant="secondary" className="bg-[#f0f3f6] text-[#65758a]">
+                      <Badge key={id} variant="secondary" className="bg-surface-2 text-ink-muted">
                         {tracks.find((track) => track.id === id)?.name ?? id}
                       </Badge>
                     ))}
                   </div>
-                  <Button onClick={() => onOpen(project)} variant="outline" className="mt-5 w-full border-[#b8c9da] text-[#234e78]">
+                  <Button onClick={() => onOpen(project)} variant="outline" className="mt-5 w-full border-line-strong text-brand-strong">
                     Abrir e continuar <ArrowRight />
                   </Button>
                   <div className="mt-2 flex gap-2">
-                    <Button onClick={() => exportOne(project)} variant="ghost" size="sm" className="flex-1 text-[#52657d]">
+                    <Button onClick={() => exportOne(project)} variant="ghost" size="sm" className="flex-1 text-ink-soft">
                       <Download /> Exportar
                     </Button>
-                    <Button onClick={() => remove(project)} variant="ghost" size="sm" className="flex-1 text-[#b53d4a] hover:text-[#b53d4a]">
+                    <Button onClick={() => remove(project)} variant="ghost" size="sm" className="flex-1 text-danger hover:text-danger">
                       <Trash2 /> Excluir
                     </Button>
                   </div>

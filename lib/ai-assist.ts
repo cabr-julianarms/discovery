@@ -22,7 +22,12 @@ export type AiPromptInput = {
   selectedTracks: string[];
   questions: AiQuestion[];
   answers: Record<string, string>;
+  /** Quando presente, pede à IA a estratégia de migração (7 Rs) por workload. */
+  strategies?: readonly { id: string; name: string; label: string }[];
+  workloads?: { name: string; strategy: string }[];
 };
+
+export type AiWorkload = { name: string; strategy: string; note: string };
 
 export type Confidence = "alta" | "media" | "baixa";
 export type AiTrackSuggestion = { id: string; reason: string; confidence: Confidence };
@@ -42,6 +47,7 @@ export type AiResult = {
   insights: AiInsights;
   tracks: AiTrackSuggestion[];
   answers: AiAnswerSuggestion[];
+  workloads: AiWorkload[];
   warnings: string[];
 };
 
@@ -73,14 +79,32 @@ export function buildPrompt(input: AiPromptInput) {
       ? "primeira conversa de qualificação (pré-vendas), ainda sem especialista técnico"
       : "discovery técnico de arquitetura, conduzido com o especialista";
 
+  const strategies = input.strategies ?? [];
   const example = {
     resumo: "Duas ou três frases sobre a oportunidade.",
     trilhas: [{ id: input.catalog[0]?.id ?? "migration", motivo: "Por que se aplica, citando o material.", confianca: "alta" }],
     respostas: [{ id: "P01", resposta: "Resposta objetiva.", evidencia: "Trecho copiado do material.", tipo: "explicito" }],
+    ...(strategies.length
+      ? { workloads: [{ nome: "Nome do sistema ou servidor", estrategia: strategies[0].id, motivo: "Por que essa estratégia." }] }
+      : {}),
     perguntas_cliente: [{ pergunta: "Pergunta clara para o cliente?", motivo: "O que ela destrava.", trilha: input.catalog[0]?.id ?? "geral" }],
     frentes: [{ titulo: "Nome curto", descricao: "O que explorar.", valor: "Benefício para o cliente." }],
     riscos: ["Risco ou ponto de atenção."],
   };
+  const workloadSection = strategies.length
+    ? [
+        "",
+        "ESTRATÉGIA DE MIGRAÇÃO POR WORKLOAD (7 Rs)",
+        'Para cada sistema, servidor ou banco citado no material, sugira uma estratégia em "workloads". Use só estes IDs:',
+        ...strategies.map((strategy) => `- ${strategy.id}: ${strategy.name} (${strategy.label})`),
+        `Workloads já registrados: ${
+          input.workloads?.length
+            ? input.workloads.map((item) => `${item.name}${item.strategy ? ` → ${item.strategy}` : " (sem estratégia)"}`).join("; ")
+            : "nenhum"
+        }`,
+        "Não invente workloads que o material não cita. Se faltar informação para decidir, diga no motivo o que precisa ser confirmado.",
+      ]
+    : [];
 
   return [
     "Você é um(a) arquiteto(a) de soluções sênior apoiando o time de pré-vendas.",
@@ -94,6 +118,7 @@ export function buildPrompt(input: AiPromptInput) {
     "3. perguntas para fazer ao cliente na próxima conversa, priorizando as lacunas que mais afetam escopo, esforço e risco;",
     "4. frentes ou oportunidades adicionais que valem ser exploradas;",
     "5. riscos e pontos de atenção.",
+    ...(strategies.length ? ["6. a estratégia de migração (7 Rs) para cada workload citado."] : []),
     "",
     "REGRAS",
     "- Não invente fatos. Se o material não traz a informação, não responda a pergunta: ela continua como lacuna.",
@@ -123,6 +148,7 @@ export function buildPrompt(input: AiPromptInput) {
     "",
     'PERGUNTAS EM ABERTO (use o ID no campo "id" de "respostas")',
     ...(open.length ? open.map((question) => `[${question.id}] (${question.group}) ${question.text}`) : ["(nenhuma)"]),
+    ...workloadSection,
     "",
     "FORMATO DA RESPOSTA",
     "```json",
@@ -154,7 +180,10 @@ const text = (value: unknown) => (typeof value === "string" ? value.trim() : "")
 const list = (value: unknown): Record<string, unknown>[] =>
   Array.isArray(value) ? value.filter((item): item is Record<string, unknown> => !!item && typeof item === "object") : [];
 
-export function parseAiResponse(raw: string, input: Pick<AiPromptInput, "questions" | "catalog" | "answers">): AiResult {
+export function parseAiResponse(
+  raw: string,
+  input: Pick<AiPromptInput, "questions" | "catalog" | "answers" | "strategies">,
+): AiResult {
   const data = extractJson(raw);
   if (!data || typeof data !== "object" || Array.isArray(data)) throw new Error("A resposta não tem o formato esperado.");
   const root = data as Record<string, unknown>;
@@ -204,10 +233,22 @@ export function parseAiResponse(raw: string, input: Pick<AiPromptInput, "questio
     generatedAt: new Date().toISOString(),
   };
 
-  if (!tracks.length && !answers.length && !insights.clientQuestions.length && !insights.opportunities.length)
+  const strategyIds = new Set((input.strategies ?? []).map((strategy) => strategy.id));
+  const workloads: AiWorkload[] = [];
+  if (strategyIds.size) {
+    for (const item of list(root.workloads)) {
+      const name = text(item.nome);
+      if (!name || workloads.some((existing) => existing.name.toLowerCase() === name.toLowerCase())) continue;
+      const strategy = text(item.estrategia).toLowerCase();
+      if (strategy && !strategyIds.has(strategy)) warnings.push(`Estratégia desconhecida para ${name}: ${strategy}`);
+      workloads.push({ name, strategy: strategyIds.has(strategy) ? strategy : "", note: text(item.motivo) });
+    }
+  }
+
+  if (!tracks.length && !answers.length && !workloads.length && !insights.clientQuestions.length && !insights.opportunities.length)
     throw new Error("A resposta veio vazia. Confira se colou a resposta inteira da IA.");
 
-  return { insights, tracks, answers, warnings };
+  return { insights, tracks, answers, workloads, warnings };
 }
 
 /** Texto gravado na resposta quando a IA deduziu em vez de encontrar no material. */

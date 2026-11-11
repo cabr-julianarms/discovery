@@ -16,7 +16,7 @@ export function TrackPicker({
         return (
           <label
             key={track.id}
-            className={`flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition ${checked ? "border-[#82b9ee] bg-[#f0f7ff] shadow-[0_0_0_1px_rgba(73,140,205,.08)]" : "border-[#e1e7ed] bg-white hover:border-[#b7c6d6]"}`}
+            className={`flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition ${checked ? "border-brand-line bg-brand-soft shadow-[0_0_0_1px_rgba(73,140,205,.08)]" : "border-line bg-white hover:border-line-strong"}`}
           >
             <Checkbox checked={checked} onCheckedChange={() => onToggle(track.id)} className="mt-0.5" />
             <span
@@ -26,8 +26,8 @@ export function TrackPicker({
               <Icon className="size-4" />
             </span>
             <span>
-              <span className="block text-sm font-semibold text-[#23344b]">{track.name}</span>
-              <span className="mt-1 block text-xs leading-5 text-[#718196]">{track.short}</span>
+              <span className="block text-sm font-semibold text-ink">{track.name}</span>
+              <span className="mt-1 block text-xs leading-5 text-ink-muted">{track.short}</span>
             </span>
           </label>
         );
